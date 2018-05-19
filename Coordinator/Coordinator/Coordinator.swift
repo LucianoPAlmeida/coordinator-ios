@@ -11,7 +11,7 @@ protocol Startable {
     func start()
 }
 
-protocol CoordinatorDelegate: class {
+protocol CoordinatorDelegate: AnyObject {
     func coordinatorDidFinish(_ coordinator: Coordinator, on controller: UIViewController?)
 }
 
@@ -19,7 +19,7 @@ protocol Coordinator: class, Startable {
     var parentCoordinador: Coordinator? { get set }
     var rootViewController: UIViewController! { get set }
     var childCoordinators: [Coordinator] { get set }
-    weak var delegate: CoordinatorDelegate? { get set }
+    var delegate: CoordinatorDelegate? { get set }
     
     func addChildCoordinator(_ coordinator: Coordinator)
     func removeChildCoordinator(_ coordinator: Coordinator)
@@ -34,7 +34,6 @@ extension Coordinator {
     }
     func removeChildCoordinator(_ coordinator: Coordinator) {
         childCoordinators = childCoordinators.filter({ $0 !== coordinator })
-        coordinator.parentCoordinador = self
     }
     
     func removeFromParent() {
@@ -44,6 +43,8 @@ extension Coordinator {
     
     func finish(in controller: UIViewController?) {
         removeFromParent()
+        childCoordinators.removeAll()
         delegate?.coordinatorDidFinish(self, on: controller)
     }
 }
+
